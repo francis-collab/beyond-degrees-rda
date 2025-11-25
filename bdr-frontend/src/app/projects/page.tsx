@@ -18,11 +18,12 @@ export default function ProjectsPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const queryClient = useQueryClient();
 
+  // FIXED: remove cacheTime to satisfy TypeScript
   const { data: projects = [], isLoading } = useQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: () => api.get('/api/v1/projects/').then(res => res.data),
     staleTime: 0,
-    cacheTime: 0,
+    // cacheTime: 0, ← removed
   });
 
   useEffect(() => {
