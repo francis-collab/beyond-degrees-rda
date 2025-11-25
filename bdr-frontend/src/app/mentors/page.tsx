@@ -109,7 +109,7 @@ export default function MentorsPage() {
                 </div>
                 {/* Safe optional chaining for quote */}
                 <p className="text-white/90 mb-6">
-                  {featuredMentor.quote ? featuredMentor.quote : 'This mentor has helped dozens of founders raise millions. Book a session today.'}
+                  {featuredMentor.quote ?? 'This mentor has helped dozens of founders raise millions. Book a session today.'}
                 </p>
                 <Link
                   href={`/mentors/${featuredMentor.slug}`}
