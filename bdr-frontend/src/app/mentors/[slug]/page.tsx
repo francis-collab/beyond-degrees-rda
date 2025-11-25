@@ -12,7 +12,7 @@ import {
   Globe,
   Users,
   CheckCircle,
-  Clock,           // ← WAS MISSING!
+  Clock,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { mentors } from '@/lib/mentors';
@@ -37,7 +37,9 @@ export default function MentorDetailPage() {
     const subject = `Mentorship Booking Request - ${mentor.name}`;
     const body = `Dear ${mentor.name.split(' ')[0]},\n\nI’d like to book a 1-hour mentorship session.\n\nRate: RWF ${mentor.hourly_rate.toLocaleString()}/hr\n\nPlease share 3 available time slots this week or next.\n\nLooking forward to learning from you!\n\nBest regards,\n[Your Name]\n[Your Phone]\n[Your Startup]`;
 
-    window.location.href = `mailto:${mentor.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = `mailto:${mentor.email}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
   };
 
   return (
@@ -76,7 +78,10 @@ export default function MentorDetailPage() {
                   <p className="opacity-80">{mentor.company}</p>
                   <div className="flex justify-center gap-1 mt-4">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                      <Star
+                        key={i}
+                        className="w-6 h-6 fill-yellow-400 text-yellow-400"
+                      />
                     ))}
                     <span className="ml-2 text-lg font-bold">{mentor.rating}</span>
                   </div>
@@ -113,7 +118,10 @@ export default function MentorDetailPage() {
                     <h3 className="font-bold text-lg mb-3">Expertise</h3>
                     <div className="flex flex-wrap gap-2">
                       {mentor.expertise.map((exp) => (
-                        <span key={exp} className="px-4 py-2 bg-[#00A651]/10 text-[#00A651] rounded-full text-sm font-medium">
+                        <span
+                          key={exp}
+                          className="px-4 py-2 bg-[#00A651]/10 text-[#00A651] rounded-full text-sm font-medium"
+                        >
                           {exp}
                         </span>
                       ))}
@@ -135,7 +143,7 @@ export default function MentorDetailPage() {
                   About {mentor.name.split(' ')[0]}
                 </h2>
                 <p className="text-xl text-gray-700 leading-relaxed">{mentor.bio}</p>
-                {mentor.quote && (
+                {mentor.quote?.length > 0 && (
                   <blockquote className="mt-8 pl-6 border-l-4 border-[#00A651] text-2xl font-medium text-[#00A651] italic">
                     “{mentor.quote}”
                   </blockquote>
@@ -144,10 +152,26 @@ export default function MentorDetailPage() {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                  { icon: Award, value: mentor.years_experience || '15+', label: 'Years Experience' },
-                  { icon: Users, value: mentor.startups_mentored || '47+', label: 'Startups Mentored' },
-                  { icon: Globe, value: mentor.countries || '12+', label: 'Countries' },
-                  { icon: Clock, value: mentor.hours_mentored || '1,200+', label: 'Hours Mentored' },
+                  {
+                    icon: Award,
+                    value: mentor.years_experience || '15+',
+                    label: 'Years Experience',
+                  },
+                  {
+                    icon: Users,
+                    value: mentor.startups_mentored || '47+',
+                    label: 'Startups Mentored',
+                  },
+                  {
+                    icon: Globe,
+                    value: mentor.countries || '12+',
+                    label: 'Countries',
+                  },
+                  {
+                    icon: Clock,
+                    value: mentor.hours_mentored || '1,200+',
+                    label: 'Hours Mentored',
+                  },
                 ].map((stat, i) => (
                   <div key={i} className="bg-white rounded-2xl p-6 text-center shadow-lg">
                     <stat.icon className="w-12 h-12 text-[#00A651] mx-auto mb-3" />
@@ -158,7 +182,9 @@ export default function MentorDetailPage() {
               </div>
 
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">What Founders Say</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                  What Founders Say
+                </h2>
                 <div className="bg-gray-50 rounded-3xl p-10">
                   <div className="flex items-center justify-between mb-6">
                     <div>
@@ -167,14 +193,19 @@ export default function MentorDetailPage() {
                     </div>
                     <div className="flex gap-1">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-6 h-6 fill-yellow-400 text-yellow-400" />
+                        <Star
+                          key={i}
+                          className="w-6 h-6 fill-yellow-400 text-yellow-400"
+                        />
                       ))}
                     </div>
                   </div>
                   <p className="text-xl italic text-gray-700">
                     "{mentor.name.split(' ')[0]} gave me clarity I couldn’t find anywhere else. Worth 10× the price."
                   </p>
-                  <p className="text-sm text-gray-500 mt-6">{format(new Date(), 'MMMM d, yyyy')}</p>
+                  <p className="text-sm text-gray-500 mt-6">
+                    {format(new Date(), 'MMMM d, yyyy')}
+                  </p>
                 </div>
               </div>
             </motion.div>
