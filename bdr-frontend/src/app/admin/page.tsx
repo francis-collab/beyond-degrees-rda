@@ -11,12 +11,22 @@ import {
 } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<any>(null);
-  const [projects, setProjects] = useState<any[]>([]);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const { user, isLoading: authLoading } = useAuth();
+  interface Stats {
+  total_donated_rwf?: number;
+  total_jobs_created?: number;
+  total_backers?: number;
+  total_entrepreneurs?: number;
+  total_messages?: number;
+  unread_messages?: number;
+}
+
+const [stats, setStats] = useState<Stats | null>(null);
+
+const [projects, setProjects] = useState<any[]>([]);
+const [messages, setMessages] = useState<any[]>([]);
+const [loading, setLoading] = useState(true);
+const router = useRouter();
+const { user, isLoading: authLoading } = useAuth();
 
   useEffect(() => {
     if (authLoading) return;
@@ -49,7 +59,7 @@ export default function AdminDashboard() {
   const markAsRead = async (id: number) => {
     await api.patch(`/api/v1/admin/messages/${id}/read`);
     setMessages(messages.map(m => m.id === id ? { ...m, is_read: true } : m));
-    setStats(prev => ({ ...prev, unread_messages: prev.unread_messages - 1 }));
+    setStats((prev: Stats | null) => prev ? { ...prev, unread_messages: (prev.unread_messages || 0) - 1 } : prev);
   };
 
   const deleteProject = async (id: number) => {
