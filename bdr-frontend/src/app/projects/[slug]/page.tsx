@@ -16,6 +16,7 @@ import { useState } from 'react';
 interface Project extends BaseProject {
   jobs_to_create?: number;
   days_remaining?: number | null;
+  business_plan_pdf?: string | null;
 }
 
 const statusConfig: Record<string, any> = {
