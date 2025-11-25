@@ -9,23 +9,28 @@ import {
   Star, Clock, Users, Calendar, ChevronRight,
   Filter, Search, Award, Globe
 } from 'lucide-react';
-import { mentors } from '@/lib/mentors';
+import { mentors, Mentor } from '@/lib/mentors'; // import Mentor type
 
 export default function MentorsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedExpertise, setSelectedExpertise] = useState<string>('all');
 
-  const expertiseOptions = Array.from(
-    new Set(['all', ...mentors.flatMap(m => m.expertise)])
+  // Explicitly type expertiseOptions as string[]
+  const expertiseOptions: string[] = Array.from(
+    new Set(['all', ...mentors.flatMap((m: Mentor) => m.expertise)])
   );
 
-  const filteredMentors = mentors.filter(mentor => {
+  const filteredMentors = mentors.filter((mentor: Mentor) => {
     const matchesSearch =
       mentor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mentor.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mentor.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mentor.expertise.some(e => e.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesExpertise = selectedExpertise === 'all' || mentor.expertise.includes(selectedExpertise);
+
+    const matchesExpertise =
+      selectedExpertise === 'all' ||
+      mentor.expertise.some(e => e === selectedExpertise); // safer includes
+
     return matchesSearch && matchesExpertise;
   });
 
@@ -77,7 +82,7 @@ export default function MentorsPage() {
               </motion.div>
             </motion.div>
 
-            {/* Right: Featured Mentor — NOW FULLY DYNAMIC */}
+            {/* Right: Featured Mentor */}
             <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.8 }}>
               <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl">
                 <div className="flex items-center space-x-6 mb-6">
