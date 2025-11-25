@@ -33,7 +33,6 @@ export default function MentorsPage() {
     document.getElementById('mentors')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Dynamic featured mentor — always Dr. Grace (safe fallback to first mentor)
   const featuredMentor = mentors.find(m => m.slug === 'grace-mukamana') || mentors[0];
 
   return (
@@ -43,7 +42,6 @@ export default function MentorsPage() {
         <div className="absolute inset-0 bg-black/20" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Text */}
             <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="space-y-8">
               <div>
                 <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
@@ -77,7 +75,7 @@ export default function MentorsPage() {
               </motion.div>
             </motion.div>
 
-            {/* Right: Featured Mentor — NOW FULLY DYNAMIC */}
+            {/* Featured Mentor */}
             <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 0.8 }}>
               <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl">
                 <div className="flex items-center space-x-6 mb-6">
@@ -231,6 +229,11 @@ export default function MentorsPage() {
                         <span>{mentor.rating}</span>
                       </div>
                     </div>
+
+                    {/* Safe optional chaining for quote */}
+                    <p className="italic text-gray-600 mb-4">
+                      {mentor.quote ?? ''}
+                    </p>
 
                     <Link href={`/mentors/${mentor.slug}`} className="block w-full">
                       <motion.button
