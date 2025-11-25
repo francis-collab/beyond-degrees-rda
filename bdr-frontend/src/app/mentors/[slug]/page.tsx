@@ -18,14 +18,21 @@ import { mentors, Mentor } from '@/lib/mentors';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
 
+// Define a type with all optional extra fields
+type MentorOptional = Mentor & {
+  quote?: string;
+  years_experience?: number;
+  startups_mentored?: number;
+  countries?: number;
+  hours_mentored?: number;
+};
+
 export default function MentorDetailPage() {
   const { slug } = useParams();
   const currentSlug = slug as string;
 
-  // Cast mentor to type where 'quote' is optional
-  const mentor = mentors.find((m) => m.slug === currentSlug) as Mentor & {
-    quote?: string;
-  };
+  // Cast mentor to MentorOptional
+  const mentor = mentors.find((m) => m.slug === currentSlug) as MentorOptional;
 
   useEffect(() => {
     if (currentSlug && !mentor) {
