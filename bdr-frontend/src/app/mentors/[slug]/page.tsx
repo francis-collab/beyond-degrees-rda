@@ -1,4 +1,3 @@
-// src/app/mentors/[slug]/page.tsx
 'use client';
 
 import { notFound } from 'next/navigation';
@@ -15,7 +14,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { mentors } from '@/lib/mentors';
+import { mentors, Mentor } from '@/lib/mentors';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -23,7 +22,10 @@ export default function MentorDetailPage() {
   const { slug } = useParams();
   const currentSlug = slug as string;
 
-  const mentor = mentors.find((m) => m.slug === currentSlug);
+  // Cast mentor to type where 'quote' is optional
+  const mentor = mentors.find((m) => m.slug === currentSlug) as Mentor & {
+    quote?: string;
+  };
 
   useEffect(() => {
     if (currentSlug && !mentor) {
@@ -143,7 +145,7 @@ export default function MentorDetailPage() {
                   About {mentor.name.split(' ')[0]}
                 </h2>
                 <p className="text-xl text-gray-700 leading-relaxed">{mentor.bio}</p>
-                {mentor.quote?.length > 0 && (
+                {mentor.quote && (
                   <blockquote className="mt-8 pl-6 border-l-4 border-[#00A651] text-2xl font-medium text-[#00A651] italic">
                     “{mentor.quote}”
                   </blockquote>
