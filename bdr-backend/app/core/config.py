@@ -27,7 +27,6 @@ class Settings(BaseSettings):
     MOMO_API_USER: Optional[str] = None
     MOMO_API_KEY: Optional[str] = None
     MOMO_SUBSCRIPTION_KEY: Optional[str] = None
-    # You didn’t define MOMO_CALLBACK_URL here, so no need to disable it.
 
     # --- Stripe (optional too) ---
     STRIPE_SECRET_KEY: Optional[str] = ""
