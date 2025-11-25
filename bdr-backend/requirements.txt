@@ -32,3 +32,5 @@ httpx
 
 # Docs
 fastapi[all]
+
+aiosmtplib
