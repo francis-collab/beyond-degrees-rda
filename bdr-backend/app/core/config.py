@@ -1,7 +1,7 @@
-# app/core/config.py — FINAL, SAFE VERSION (keep this exactly)
+# app/core/config.py — FINAL, SAFE VERSION (MoMo optional)
 import os
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Optional
 from functools import lru_cache
 
 class Settings(BaseSettings):
@@ -22,13 +22,16 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = "francisschooten@gmail.com"
     EMAIL_FROM_NAME: str = "Francis @ Beyond Degrees Rwanda"
 
+    # --- MoMo is optional now ---
     MOMO_ENV: str = "sandbox"
-    MOMO_API_USER: str = ""
-    MOMO_API_KEY: str = ""
-    MOMO_SUBSCRIPTION_KEY: str = ""
+    MOMO_API_USER: Optional[str] = None
+    MOMO_API_KEY: Optional[str] = None
+    MOMO_SUBSCRIPTION_KEY: Optional[str] = None
+    # You didn’t define MOMO_CALLBACK_URL here, so no need to disable it.
 
-    STRIPE_SECRET_KEY: str = ""
-    STRIPE_WEBHOOK_SECRET: str = ""
+    # --- Stripe (optional too) ---
+    STRIPE_SECRET_KEY: Optional[str] = ""
+    STRIPE_WEBHOOK_SECRET: Optional[str] = ""
 
     ALLOWED_HOSTS: List[str] = ["localhost", "127.0.0.1"]
     LOG_LEVEL: str = "INFO"
