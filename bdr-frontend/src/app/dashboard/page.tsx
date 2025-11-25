@@ -16,7 +16,7 @@ interface Project {
   funding_goal: number;
   current_funding: number;
   backers_count: number;
-  days_remaining?: number | null;  // ← CHANGED FROM days_left → days_remaining
+  days_remaining?: number | null;
   status: string;
 }
 
@@ -28,8 +28,16 @@ interface Message {
   unread: boolean;
 }
 
+// --- NEW: Extend User type with optional full_name to fix TS error
+interface UserWithFullName {
+  full_name?: string;
+  role?: string;
+  [key: string]: any; // allow other existing fields
+}
+
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const typedUser = user as UserWithFullName; // <-- type assertion
   const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -66,7 +74,7 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <h1 className="text-5xl font-bold text-bdr-blue mb-2">
-            Welcome back, {user?.full_name || 'Entrepreneur'}!
+            Welcome back, {typedUser?.full_name || 'Entrepreneur'}!
           </h1>
           <p className="text-xl text-gray-600">Manage your projects and track impact.</p>
         </motion.div>
@@ -101,8 +109,6 @@ export default function Dashboard() {
             {projects.length > 0 ? (
               projects.map((project, i) => {
                 const progress = Math.round((project.current_funding / project.funding_goal) * 100);
-
-                // FINAL FIX: Use real days_remaining from backend
                 const daysLeft = project.days_remaining !== null && project.days_remaining !== undefined
                   ? project.days_remaining
                   : (project.status === 'active' ? 90 : 90); // fallback only for old data
@@ -168,7 +174,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Messages & Logout — 100% UNCHANGED */}
+        {/* Messages & Logout — UNCHANGED */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">Messages</h2>
           <div className="bg-white rounded-3xl shadow-xl p-6">
