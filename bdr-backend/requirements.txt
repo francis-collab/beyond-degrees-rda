@@ -34,3 +34,5 @@ httpx
 fastapi[all]
 
 aiosmtplib
+
+python-slugify
