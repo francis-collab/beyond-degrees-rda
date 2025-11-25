@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .gradient-blue { @apply bg-gradient-to-b from-[#00A1D6] to-[#80d0f0]; }
+  .gradient-yellow { @apply bg-gradient-to-b from-[#FCD116] to-[#fce88a]; }
+  .gradient-green { @apply bg-gradient-to-b from-[#00A651] to-[#80c8a0]; }
+
+  .btn-base { @apply px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5; }
+  .btn-blue { @apply btn-base bg-[#00A1D6] text-white hover:bg-[#0088b8]; }
+  .btn-yellow { @apply btn-base bg-[#FCD116] text-gray-900 hover:bg-[#f5c107]; }
+  .btn-green { @apply btn-base bg-[#00A651] text-white hover:bg-[#008a45]; }
+}
+
+html { scroll-behavior: smooth; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { @apply bg-gray-100; }
+::-webkit-scrollbar-thumb { @apply bg-[#00A1D6] rounded-full hover:bg-[#0088b8]; }
+::-webkit-scrollbar-corner { @apply bg-gray-100; }
+
+@screen sm { ::-webkit-scrollbar { width: 6px; } }

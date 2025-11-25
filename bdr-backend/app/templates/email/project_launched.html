@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>Project Live: {{ project.title }}</h1>
+  <p>Goal: {{ project.funding_goal | currency }}</p>
+  <p>Jobs to create: {{ project.job_goal }}</p>
+  <p>Share: https://bdr.rw/p/{{ project.slug }}</p>
+</body>
+</html>
