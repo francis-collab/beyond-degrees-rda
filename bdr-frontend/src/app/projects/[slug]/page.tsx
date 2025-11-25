@@ -12,9 +12,10 @@ import { Project as BaseProject } from '@/lib/types';
 import PaymentModal from '@/components/PaymentModal';
 import { useState } from 'react';
 
-// Extend Project type locally to include jobs_to_create
+// Extend Project type locally to include missing properties
 interface Project extends BaseProject {
   jobs_to_create?: number;
+  days_remaining?: number | null;
 }
 
 const statusConfig: Record<string, any> = {
@@ -58,9 +59,9 @@ export default function ProjectDetailPage() {
   }
 
   const progress = Math.min(100, (project.current_funding / project.funding_goal) * 100);
-  const jobsToCreate = project.jobs_to_create ?? Math.floor(project.funding_goal / 200000); // ✅ fixed
+  const jobsToCreate = project.jobs_to_create ?? Math.floor(project.funding_goal / 200000);
   const currentStatus = statusConfig[project.status] || statusConfig.draft;
-  const daysLeft = project.days_remaining !== null ? project.days_remaining : null;
+  const daysLeft = project.days_remaining ?? null;
 
   return (
     <>
