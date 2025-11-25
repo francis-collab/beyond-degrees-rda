@@ -1,8 +1,7 @@
-// src/app/projects/edit/[id]/page.tsx
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { useAuth } from '@/components/AuthProvider'; // ← NEW: Auth check
+import { useAuth } from '@/components/AuthProvider';
 import { ArrowLeft, Save, Trash2, Upload, FileText, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import api from '@/lib/api';
@@ -10,7 +9,7 @@ import api from '@/lib/api';
 export default function EditProjectPage() {
   const router = useRouter();
   const { id } = useParams();
-  const { user, loading: authLoading } = useAuth(); // ← Check auth state
+  const { user } = useAuth(); // ← Only user, no loading
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -25,18 +24,17 @@ export default function EditProjectPage() {
     current_pdf: '',
   });
 
-  // PROTECT THE PAGE — Redirect to register if not logged in
+  // PROTECT THE PAGE — Redirect if not logged in
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (user === null) {
       router.push('/auth/register');
     }
-  }, [user, authLoading, router]);
+  }, [user, router]);
 
-  // Show nothing while checking auth (redirect happens instantly)
-  if (authLoading || !user) {
-    return null;
-  }
+  // Wait until user is loaded before rendering anything
+  if (user === undefined || user === null) return null;
 
+  // Fetch project
   useEffect(() => {
     const fetchProject = async () => {
       try {
@@ -58,7 +56,6 @@ export default function EditProjectPage() {
         setLoading(false);
       }
     };
-
     if (id) fetchProject();
   }, [id, router]);
 
@@ -75,9 +72,7 @@ export default function EditProjectPage() {
     data.append('description', formData.description);
     data.append('funding_goal', formData.funding_goal);
     data.append('sector', formData.sector);
-    if (formData.business_plan) {
-      data.append('business_plan', formData.business_plan);
-    }
+    if (formData.business_plan) data.append('business_plan', formData.business_plan);
 
     try {
       await api.put(`/api/v1/projects/${id}`, data, {
