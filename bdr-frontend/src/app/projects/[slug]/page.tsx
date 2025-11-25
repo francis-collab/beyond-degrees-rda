@@ -1,4 +1,3 @@
-// src/app/projects/[slug]/page.tsx
 'use client';
 import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -9,9 +8,14 @@ import {
   Clock, Users, Loader2, XCircle, FileText, Rocket, Trophy
 } from 'lucide-react';
 import api from '@/lib/api';
-import { Project } from '@/lib/types';
+import { Project as BaseProject } from '@/lib/types';
 import PaymentModal from '@/components/PaymentModal';
 import { useState } from 'react';
+
+// Extend Project type locally to include jobs_to_create
+interface Project extends BaseProject {
+  jobs_to_create?: number;
+}
 
 const statusConfig: Record<string, any> = {
   draft: { icon: Clock, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Draft', button: false },
@@ -54,7 +58,7 @@ export default function ProjectDetailPage() {
   }
 
   const progress = Math.min(100, (project.current_funding / project.funding_goal) * 100);
-  const jobsToCreate = project.jobs_to_create || Math.floor(project.funding_goal / 200000);
+  const jobsToCreate = project.jobs_to_create ?? Math.floor(project.funding_goal / 200000); // ✅ fixed
   const currentStatus = statusConfig[project.status] || statusConfig.draft;
   const daysLeft = project.days_remaining !== null ? project.days_remaining : null;
 
@@ -148,7 +152,7 @@ export default function ProjectDetailPage() {
                   </div>
                 )}
 
-                {/* BUSINESS PLAN PDF — FINAL UNIVERSAL FIX */}
+                {/* BUSINESS PLAN PDF */}
                 {project.business_plan_pdf && (
                   <a
                     href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}${project.business_plan_pdf}`}
