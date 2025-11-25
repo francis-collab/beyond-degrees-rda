@@ -6,7 +6,18 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Lightbulb, Heart, Rocket } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider'; // ← ONLY THIS LINE ADDED
 
-const steps = [
+// ✅ Define a type for color keys
+type StepColor = 'blue' | 'yellow' | 'green';
+
+interface Step {
+  icon: typeof Lightbulb;
+  title: string;
+  desc: string;
+  color: StepColor;
+  delay: number;
+}
+
+const steps: Step[] = [
   {
     icon: Lightbulb,
     title: '1. Share Your Vision',
@@ -30,7 +41,7 @@ const steps = [
   },
 ];
 
-const colorMap = {
+const colorMap: Record<StepColor, string> = {
   blue: 'bg-bdr-blue',
   yellow: 'bg-bdr-yellow',
   green: 'bg-bdr-green',
