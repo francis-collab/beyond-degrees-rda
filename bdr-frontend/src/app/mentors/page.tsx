@@ -105,10 +105,6 @@ export default function MentorsPage() {
                     </div>
                   </div>
                 </div>
-                {/* Safe optional chaining for quote */}
-                <p className="text-white/90 mb-6">
-                  {featuredMentor.quote ?? 'This mentor has helped dozens of founders raise millions. Book a session today.'}
-                </p>
                 <Link
                   href={`/mentors/${featuredMentor.slug}`}
                   className="inline-flex items-center px-6 py-3 bg-[#FCD116] text-[#00A1D6] font-bold rounded-full hover:bg-[#FCD116]/90 transition-all"
@@ -229,11 +225,6 @@ export default function MentorsPage() {
                         <span>{mentor.rating}</span>
                       </div>
                     </div>
-
-                    {/* Safe optional chaining for quote */}
-                    <p className="italic text-gray-600 mb-4">
-                      {mentor.quote ?? ''}
-                    </p>
 
                     <Link href={`/mentors/${mentor.slug}`} className="block w-full">
                       <motion.button
