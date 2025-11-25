@@ -37,4 +37,5 @@ export interface Project {
   image_url?: string; // ← CDN fallback
   backers_count?: number;
   is_momo_ready?: boolean; // ← for badge
+  slug: string; // ← ADDED THIS TO FIX TypeScript ERROR
 }
