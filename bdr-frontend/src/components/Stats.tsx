@@ -23,10 +23,10 @@ export default function Stats() {
     { icon: DollarSign, label: 'Funded Projects', key: 'funded_projects', color: 'yellow' },
     { icon: Users, label: 'Jobs Created', key: 'jobs_created', color: 'green' },
     { icon: TrendingUp, label: 'Youth Mentored', key: 'youth_mentored', color: 'blue' },
-  ];
+  ] as const;
 
-  const colorMap = { blue: 'bg-[#00A1D6]', yellow: 'bg-[#FCD116]', green: 'bg-[#00A651]' };
-  const textColorMap = { blue: 'text-[#00A1D6]', yellow: 'text-[#FCD116]', green: 'text-[#00A651]' };
+  const colorMap = { blue: 'bg-[#00A1D6]', yellow: 'bg-[#FCD116]', green: 'bg-[#00A651]' } as const;
+  const textColorMap = { blue: 'text-[#00A1D6]', yellow: 'text-[#FCD116]', green: 'text-[#00A651]' } as const;
 
   const formatNumber = (num: number) => (num >= 1000 ? `${(num / 1000).toFixed(1)}k` : num.toString());
 
@@ -49,9 +49,13 @@ export default function Stats() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {stats.map((stat, index) => {
-            const value = data?.[stat.key as keyof typeof FALLBACK] ?? 0;
-            const bgColor = colorMap[stat.color];
-            const textColor = textColorMap[stat.color];
+            // stat.key is narrowed by the const assertion above
+            const value = (data as any)?.[stat.key] ?? 0;
+
+            // Tell TS that stat.color is one of the keys of colorMap/textColorMap
+            const colorKey = stat.color as keyof typeof colorMap;
+            const bgColor = colorMap[colorKey];
+            const textColor = textColorMap[colorKey];
 
             return (
               <motion.div
