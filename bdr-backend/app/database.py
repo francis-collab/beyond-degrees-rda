@@ -8,7 +8,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic_settings import BaseSettings
 from typing import List
-import json
 import os
 
 
@@ -50,8 +49,7 @@ class Settings(BaseSettings):
         "extra": "allow",
         "env_file": ".env",
         "env_file_encoding": "utf-8",
-        "case_sensitive": False,
-        "json_loads": json.loads
+        "case_sensitive": False
     }
 
 
@@ -62,12 +60,21 @@ def get_settings() -> Settings:
     return Settings()
 
 
-# Use environment variable if present AND not empty, otherwise fallback to bdr.db
+# Read DATABASE_URL safely
 env_db_url = os.getenv("DATABASE_URL")
-database_url = env_db_url if env_db_url and env_db_url.strip() != "" else get_settings().database_url
 
-# If using SQLite, set check_same_thread
-connect_args = {"check_same_thread": False} if "sqlite" in database_url else {}
+# Fallback to SQLite if:
+#   - env var does not exist
+#   - OR it is empty
+#   - OR it contains only spaces
+database_url = (
+    env_db_url.strip()
+    if env_db_url and env_db_url.strip() != ""
+    else get_settings().database_url
+)
+
+# If using SQLite, set the thread arg
+connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
 
 engine = create_engine(database_url, connect_args=connect_args)
 
