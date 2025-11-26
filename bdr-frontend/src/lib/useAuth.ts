@@ -1,7 +1,10 @@
+// src/lib/useAuth.ts
 'use client';
+
 import { useState, useEffect } from 'react';
-import { getToken, getCurrentUser, User } from './auth';
+import { getToken } from './auth';
 import api from './api';
+import { User } from './types';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -9,21 +12,26 @@ export const useAuth = () => {
 
   useEffect(() => {
     const token = getToken();
-    if (token && !getCurrentUser()) {
-      // Fetch user profile
-      api.get('/api/v1/users/me/')
+
+    if (token) {
+      // ensure api has the token set so requests succeed
+      api.defaults.headers.Authorization = `Bearer ${token}`;
+
+      api.get('/api/v1/auth/me')
         .then(res => {
           setUser(res.data);
         })
         .catch(() => {
-          // Invalid token
+          // invalid token or network error — clear user
           setUser(null);
+          // also remove header to avoid leaking an invalid token for other requests
+          delete api.defaults.headers.Authorization;
         })
         .finally(() => {
           setLoading(false);
         });
     } else {
-      setUser(getCurrentUser());
+      setUser(null);
       setLoading(false);
     }
   }, []);
