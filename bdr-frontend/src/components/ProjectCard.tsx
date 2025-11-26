@@ -4,7 +4,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock, Users, ChevronRight, Briefcase } from 'lucide-react'; // ← ADDED Briefcase HERE
+import { Clock, Users, ChevronRight, Briefcase } from 'lucide-react';
 import { Project } from '@/lib/types';
 
 interface ProjectCardProps {
@@ -108,9 +108,10 @@ export default function ProjectCard({ project, index = 0 }: ProjectCardProps) {
             <div className="flex items-center space-x-1">
               <Briefcase className="w-5 h-5" />
               <span className="font-bold text-gray-800">
-                {project.jobs_to_create || Math.floor(project.funding_goal / 10000)} jobs
+                {(project as any).jobs_to_create ?? Math.floor(project.funding_goal / 10000)} jobs
               </span>
             </div>
+
             <div className="flex items-center space-x-1">
               <Clock className="w-4 h-4" />
               <span>90 days</span>
