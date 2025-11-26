@@ -36,22 +36,24 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# PRODUCTION CORS — WORKS WITH VERCEL + LOCAL
+# PRODUCTION CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
         "https://beyond-degrees-rda.vercel.app",
         "https://beyond-degrees-rda.onrender.com",
-        "https://beyonddegrees.rw",  # future domain
+        "https://beyonddegrees.rw",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# ROUTES
 app.include_router(auth_router, prefix="/api/v1/auth")
 app.include_router(users_router, prefix="/api/v1/users")
 app.include_router(projects_router, prefix="/api/v1/projects")
@@ -61,7 +63,7 @@ app.include_router(pages_router, prefix="/api/v1")
 app.include_router(mentors_router, prefix="/api/v1")
 app.include_router(contact_router, prefix="/api/v1")
 app.include_router(success_router, prefix="/api/v1")
-app.include_router(admin_router)  # No extra prefix — admin.py already has /api/v1/admin
+app.include_router(admin_router)
 
 @app.get("/")
 def root():
@@ -71,7 +73,6 @@ def root():
 def health():
     return {"status": "healthy", "nation": "Rwanda Rising"}
 
-# THIS IS CRITICAL FOR RENDER/PRODUCTION — AUTO BINDS TO PORT
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))

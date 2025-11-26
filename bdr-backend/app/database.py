@@ -1,93 +1,57 @@
-"""
-BDR – Database Module
-SQLAlchemy setup + session + settings
-"""
+# app/database.py
 
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from pydantic_settings import BaseSettings
-from typing import List
+from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
+# --------------------------------------------
+# 1. Detect environment (Vercel or local)
+# --------------------------------------------
+# If DATABASE_URL is set → use it (PostgreSQL later)
+# If not set → fallback to SQLite
+# --------------------------------------------
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Settings (Pydantic v2 + .env + JSON LISTS)
-# ─────────────────────────────────────────────────────────────────────────────
-class Settings(BaseSettings):
-    database_url: str = "sqlite:///./bdr.db"
-    
-    secret_key: str
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 1440
-    password_reset_token_expire_minutes: int = 60
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-    smtp_host: str = "localhost"
-    smtp_port: int = 8025
-    smtp_user: str = ""
-    smtp_password: str = ""
-    email_from: str = "no-reply@bdr.rw"
-    email_from_name: str = "BDR Rwanda"
+if DATABASE_URL:
+    # Fix Vercel Postgres format if needed (postgres:// → postgresql://)
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-    momo_env: str = "sandbox"
-    momo_api_user: str
-    momo_api_key: str
-    momo_subscription_key: str
-    momo_callback_url: str
+else:
+    # Running locally OR on Vercel without Postgres
+    # Vercel & Serverless ONLY allow writing to /tmp
+    if os.getenv("VERCEL"):
+        SQLITE_PATH = "/tmp/bdr.db"
+    else:
+        SQLITE_PATH = "./bdr.db"
 
-    stripe_secret_key: str = ""
-    stripe_webhook_secret: str = ""
-    stripe_public_key: str = ""
+    DATABASE_URL = f"sqlite:///{SQLITE_PATH}"
 
-    frontend_url: str = "http://localhost:3000"
-    allowed_hosts: List[str] = ["localhost", "127.0.0.1", "api.bdr.rw"]
-    debug: bool = True
-    log_level: str = "INFO"
-    job_creation_rate: int = 10000
+# --------------------------------------------
+# 2. Create SQLAlchemy engine
+# --------------------------------------------
+connect_args = {}
 
-    model_config = {
-        "extra": "allow",
-        "env_file": ".env",
-        "env_file_encoding": "utf-8",
-        "case_sensitive": False
-    }
+if DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Database Setup
-# ─────────────────────────────────────────────────────────────────────────────
-def get_settings() -> Settings:
-    return Settings()
-
-
-# Read DATABASE_URL safely
-env_db_url = os.getenv("DATABASE_URL")
-
-# Fallback to SQLite if:
-#   - env var does not exist
-#   - OR it is empty
-#   - OR it contains only spaces
-database_url = (
-    env_db_url.strip()
-    if env_db_url and env_db_url.strip() != ""
-    else get_settings().database_url
+engine = create_engine(
+    DATABASE_URL,
+    connect_args=connect_args,
+    pool_pre_ping=True,   # Fixes stale connections
 )
 
-# If using SQLite, set the thread arg
-connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
+# --------------------------------------------
+# 3. SessionLocal factory
+# --------------------------------------------
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+)
 
-engine = create_engine(database_url, connect_args=connect_args)
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# --------------------------------------------
+# 4. Base class for ORM models
+# --------------------------------------------
 Base = declarative_base()
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Dependency
-# ─────────────────────────────────────────────────────────────────────────────
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
