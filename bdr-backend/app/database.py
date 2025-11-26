@@ -8,7 +8,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from pydantic_settings import BaseSettings
 from typing import List
-import json  # ← THIS WAS MISSING
+import json
+import os
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -50,7 +51,7 @@ class Settings(BaseSettings):
         "env_file": ".env",
         "env_file_encoding": "utf-8",
         "case_sensitive": False,
-        "json_loads": json.loads  # ← NOW WORKS
+        "json_loads": json.loads
     }
 
 
@@ -60,10 +61,14 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     return Settings()
 
-engine = create_engine(
-    get_settings().database_url,
-    connect_args={"check_same_thread": False} if "sqlite" in get_settings().database_url else {}
-)
+
+# Use environment variable if present, otherwise fallback to bdr.db
+database_url = os.getenv("DATABASE_URL", get_settings().database_url)
+
+# If using SQLite, set check_same_thread
+connect_args = {"check_same_thread": False} if "sqlite" in database_url else {}
+
+engine = create_engine(database_url, connect_args=connect_args)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
