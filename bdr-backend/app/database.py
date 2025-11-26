@@ -62,8 +62,9 @@ def get_settings() -> Settings:
     return Settings()
 
 
-# Use environment variable if present, otherwise fallback to bdr.db
-database_url = os.getenv("DATABASE_URL", get_settings().database_url)
+# Use environment variable if present AND not empty, otherwise fallback to bdr.db
+env_db_url = os.getenv("DATABASE_URL")
+database_url = env_db_url if env_db_url and env_db_url.strip() != "" else get_settings().database_url
 
 # If using SQLite, set check_same_thread
 connect_args = {"check_same_thread": False} if "sqlite" in database_url else {}
