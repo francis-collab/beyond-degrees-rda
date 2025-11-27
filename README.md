@@ -120,14 +120,14 @@ DEBUG=True
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
-**Backend Running at**:
+Backend Running at:
 👉 `http://localhost:8000/docs`
 
 # ⚛️ Frontend Setup (Next.js)
 
 ## 📁 7. Navigate to Frontend Folder
 
-```bash 
+```bash
 cd ../frontend
 ```
 
