@@ -61,7 +61,7 @@ async def create_project_with_pdf(
         shutil.copyfileobj(business_plan.file, buffer)
 
     # Save Project Image
-    image_url = "/placeholder-project.jpg"
+    image_url = "/static/uploads/projects/placeholder-project.jpg"
     if image and image.filename:
         ext = image.filename.rsplit('.', 1)[-1].lower()
         if ext not in ['jpg', 'jpeg', 'png', 'webp', 'gif']:
@@ -71,7 +71,7 @@ async def create_project_with_pdf(
         img_path = f"static/uploads/projects/{safe_img}"
         with open(img_path, "wb") as buffer:
             shutil.copyfileobj(image.file, buffer)
-        image_url = f"/{img_path}"
+        image_url = f"/static/uploads/projects/{safe_img}"
 
     # ← LAUNCH INSTANTLY IF USER CLICKED "LAUNCH PROJECT"
     project_status = ProjectStatus.active if launch_now else ProjectStatus.draft
@@ -88,7 +88,7 @@ async def create_project_with_pdf(
         job_goal=jobs_to_create,
         jobs_to_create=jobs_to_create,
         backers_count=0,
-        business_plan_pdf=f"/{pdf_path}",
+        business_plan_pdf=f"/static/uploads/business_plans/{safe_pdf}",
         image_url=image_url,
         entrepreneur_id=current_user.id,
         status=project_status,
@@ -140,7 +140,8 @@ async def update_project(
     funding_goal: Optional[int] = Form(None),
     sector: Optional[str] = Form(None),
     business_plan: Optional[UploadFile] = File(None),
-    launch_now: Optional[bool] = Form(False),  # ← Allow launching on update too
+    image: Optional[UploadFile] = File(None),  # ← allow updating image too
+    launch_now: Optional[bool] = Form(False),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_entrepreneur)
 ):
@@ -177,7 +178,23 @@ async def update_project(
         pdf_path = f"static/uploads/business_plans/{safe_pdf}"
         with open(pdf_path, "wb") as buffer:
             shutil.copyfileobj(business_plan.file, buffer)
-        project.business_plan_pdf = f"/{pdf_path}"
+        project.business_plan_pdf = f"/static/uploads/business_plans/{safe_pdf}"
+
+    # Replace image if uploaded
+    if image and image.filename:
+        ext = image.filename.rsplit('.', 1)[-1].lower()
+        if ext not in ['jpg', 'jpeg', 'png', 'webp', 'gif']:
+            raise HTTPException(status_code=400, detail="Image must be JPG, PNG, WebP or GIF")
+        if project.image_url and project.image_url != "/static/uploads/projects/placeholder-project.jpg":
+            img_path_old = project.image_url.lstrip('/')
+            if os.path.exists(img_path_old):
+                os.remove(img_path_old)
+        os.makedirs("static/uploads/projects", exist_ok=True)
+        safe_img = f"{current_user.id}_{project.slug}_cover.{ext}"
+        img_path = f"static/uploads/projects/{safe_img}"
+        with open(img_path, "wb") as buffer:
+            shutil.copyfileobj(image.file, buffer)
+        project.image_url = f"/static/uploads/projects/{safe_img}"
 
     # ← LAUNCH ON UPDATE TOO
     if launch_now and project.status == ProjectStatus.draft:
@@ -203,7 +220,7 @@ def delete_project(
 
     if project.business_plan_pdf and os.path.exists(project.business_plan_pdf.lstrip('/')):
         os.remove(project.business_plan_pdf.lstrip('/'))
-    if project.image_url and project.image_url != "/placeholder-project.jpg":
+    if project.image_url and project.image_url != "/static/uploads/projects/placeholder-project.jpg":
         img_path = project.image_url.lstrip('/')
         if os.path.exists(img_path):
             os.remove(img_path)

@@ -29,6 +29,11 @@ logger = logging.getLogger("bdr")
 # ✅ NEW: Initialize DB tables for first-time setup
 init_db()
 
+# ✅ NEW: Ensure upload directories exist at startup
+os.makedirs("static/uploads/projects", exist_ok=True)
+os.makedirs("static/uploads/business_plans", exist_ok=True)
+os.makedirs("static/uploads/users", exist_ok=True)  # in case user profile images exist
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("BDR API Starting...")
