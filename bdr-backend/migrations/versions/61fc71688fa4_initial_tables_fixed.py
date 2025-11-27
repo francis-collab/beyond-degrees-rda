@@ -1,8 +1,8 @@
-"""Initial tables
+"""Initial tables fixed
 
-Revision ID: f59437fecbc1
+Revision ID: 61fc71688fa4
 Revises: 
-Create Date: 2025-11-27 17:29:00.526297
+Create Date: 2025-11-27 17:53:48.519564
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f59437fecbc1'
+revision: str = '61fc71688fa4'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -57,8 +57,7 @@ def upgrade() -> None:
     sa.Column('read_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    postgresql_partition_by='RANGE (created_at)'
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_notifications_created_at'), 'notifications', ['created_at'], unique=False)
     op.create_index(op.f('ix_notifications_id'), 'notifications', ['id'], unique=False)
