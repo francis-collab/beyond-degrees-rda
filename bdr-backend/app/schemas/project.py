@@ -5,7 +5,7 @@ FINAL VERSION — ZERO 500 ERRORS — INSTANT LAUNCH + ACTIVE STATUS FIXED
 """
 from pydantic import BaseModel, Field, computed_field
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timezone
 
 # For file upload support
 from fastapi import UploadFile, File
@@ -71,7 +71,11 @@ class ProjectListOut(BaseModel):
     def days_remaining(self) -> Optional[int]:
         if not self.ends_at:
             return None
-        delta = self.ends_at - datetime.utcnow()
+        # FULLY SAFE: handle naive and aware datetimes
+        ends_at_utc = (
+            self.ends_at if self.ends_at.tzinfo else self.ends_at.replace(tzinfo=timezone.utc)
+        )
+        delta = ends_at_utc - datetime.now(timezone.utc)
         return max(0, delta.days)
 
     class Config:
@@ -117,7 +121,11 @@ class ProjectOut(BaseModel):
     def days_remaining(self) -> Optional[int]:
         if not self.ends_at:
             return None
-        delta = self.ends_at - datetime.utcnow()
+        # FULLY SAFE: handle naive and aware datetimes
+        ends_at_utc = (
+            self.ends_at if self.ends_at.tzinfo else self.ends_at.replace(tzinfo=timezone.utc)
+        )
+        delta = ends_at_utc - datetime.now(timezone.utc)
         return max(0, delta.days)
 
     class Config:
