@@ -1,7 +1,8 @@
 # app/database.py
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker
+from app.db.base import Base  # <- Use the centralized Base
 import os
 
 # --------------------------------------------
@@ -17,7 +18,6 @@ if DATABASE_URL:
     # Fix Vercel Postgres format if needed (postgres:// → postgresql://)
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
 else:
     # Running locally OR on Vercel without Postgres
     # Vercel & Serverless ONLY allow writing to /tmp
@@ -39,7 +39,7 @@ if DATABASE_URL.startswith("sqlite"):
 engine = create_engine(
     DATABASE_URL,
     connect_args=connect_args,
-    pool_pre_ping=True,   # Fixes stale connections
+    pool_pre_ping=True,  # Fixes stale connections
 )
 
 # --------------------------------------------
@@ -52,6 +52,8 @@ SessionLocal = sessionmaker(
 )
 
 # --------------------------------------------
-# 4. Base class for ORM models
+# 4. Initialize database tables
 # --------------------------------------------
-Base = declarative_base()
+def init_db():
+    """Create all tables (for SQLite / first-time setup)."""
+    Base.metadata.create_all(bind=engine)

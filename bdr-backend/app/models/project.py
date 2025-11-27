@@ -1,16 +1,22 @@
 # app/models/project.py
-from sqlalchemy import Column, Integer, String, Text, DECIMAL, DateTime, Enum, ForeignKey, func
+
+from sqlalchemy import (
+    Column, Integer, String, Text, DECIMAL, DateTime, Enum,
+    ForeignKey, func
+)
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.exc import IntegrityError
-from ..database import Base
 from typing import Optional
 from datetime import datetime, timedelta
 import enum
 
+# ✅ Use the new unified Base
+from app.db.base import Base
+
 
 class ProjectStatus(enum.Enum):
     draft = "draft"
-    active = "active"        # ← THIS WAS MISSING → 500 ERROR FIXED
+    active = "active"      # ← FIXED MISSING VALUE
     funded = "funded"
     failed = "failed"
     verified = "verified"
@@ -33,7 +39,6 @@ class Project(Base):
     video_url = Column(String, nullable=True)
     business_plan_pdf = Column(String(500), nullable=True)
 
-    # ← NOW USING "active" INSTEAD OF "live"
     status = Column(Enum(ProjectStatus), default=ProjectStatus.draft, nullable=False)
     launched_at = Column(DateTime(timezone=True), nullable=True)
     ends_at = Column(DateTime(timezone=True), nullable=True)
@@ -42,8 +47,18 @@ class Project(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     entrepreneur_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    entrepreneur = relationship("User", back_populates="projects")
-    transactions = relationship("Transaction", back_populates="project", cascade="all, delete-orphan", passive_deletes=True)
+
+    entrepreneur = relationship(
+        "User",
+        back_populates="projects"
+    )
+
+    transactions = relationship(
+        "Transaction",
+        back_populates="project",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
 
     @validates("funding_goal")
     def validate_funding_goal(self, key, value):
@@ -64,10 +79,10 @@ class Project(Base):
         delta = self.ends_at - datetime.utcnow()
         return max(0, delta.days)
 
-    # ← NOW LAUNCHES WITH 90-DAY CAMPAIGN
     def launch(self):
+        """Launch the project and automatically start a 90-day campaign."""
         if self.status != ProjectStatus.draft:
             raise ValueError("Only draft projects can be launched")
         self.status = ProjectStatus.active
         self.launched_at = datetime.utcnow()
-        self.ends_at = self.launched_at + timedelta(days=90)  # ← 90 days!
+        self.ends_at = self.launched_at + timedelta(days=90)

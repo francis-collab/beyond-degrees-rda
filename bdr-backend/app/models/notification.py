@@ -14,11 +14,13 @@ Aligned with:
 - Activity Diagram: Webhook → Notification → Email
 """
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, Enum, ForeignKey, func
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, Enum, ForeignKey
 from sqlalchemy.orm import relationship
-from ..database import Base
+from sqlalchemy.sql import func
+from app.database import Base
 from typing import Optional
 import enum
+import json
 from datetime import datetime
 
 
@@ -67,10 +69,9 @@ class Notification(Base):
     # ── Relationship ──
     user = relationship("User", back_populates="notifications")
 
-    # ── Indexes for Performance ──
+    # ── Index Config / Partitioning ──
     __table_args__ = (
-        # Fast unread count per user
-        {"postgresql_partition_by": "RANGE (created_at)"}  # Optional: for large scale
+        {"postgresql_partition_by": "RANGE (created_at)"}  # Optional at scale
     )
 
     # ── Properties ──
@@ -81,7 +82,6 @@ class Notification(Base):
     @property
     def data_dict(self) -> dict:
         """Parse JSON data field safely."""
-        import json
         if not self.data:
             return {}
         try:
@@ -104,16 +104,21 @@ class Notification(Base):
             "message": self.message,
             "type": self.type.value,
             "is_read": self.is_read,
-            "created_at": self.created_at.isoformat(),
+            "created_at": self.created_at.isoformat() if self.created_at else None,
             "data": self.data_dict
         }
 
+    # ── Factory Methods ──
     @classmethod
     def create_funding_notification(cls, project, amount, jobs, backer_name):
         """Factory: Funding received."""
         title = f"New Funding: {jobs} Job(s) Created!"
-        message = f"{backer_name} backed your project **{project.title}** with RWF {amount:,}. {jobs} job(s) created!"
+        message = (
+            f"{backer_name} backed your project **{project.title}** with RWF {amount:,}. "
+            f"{jobs} job(s) created!"
+        )
         data = {"project_id": project.id, "amount": str(amount), "jobs": jobs}
+
         return cls(
             title=title,
             message=message,
@@ -123,10 +128,13 @@ class Notification(Base):
 
     @classmethod
     def create_milestone_notification(cls, project, percentage):
-        """Factory: 25%, 50%, etc."""
+        """Factory: milestone reached."""
         title = f"Milestone: {percentage}% Funded!"
-        message = f"Your project **{project.title}** is now {percentage}% funded. Keep going!"
+        message = (
+            f"Your project **{project.title}** is now {percentage}% funded. Keep going!"
+        )
         data = {"project_id": project.id, "percentage": percentage}
+
         return cls(
             title=title,
             message=message,

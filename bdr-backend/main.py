@@ -6,6 +6,9 @@ from contextlib import asynccontextmanager
 import logging
 import os
 
+# ✅ NEW: Auto-create tables (important for SQLite on Render)
+from app.database import init_db
+
 from app.core.config import settings
 
 # === ROUTERS ===
@@ -22,6 +25,9 @@ from app.api.v1.admin import router as admin_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("bdr")
+
+# ✅ NEW: Initialize DB tables for first-time setup
+init_db()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
